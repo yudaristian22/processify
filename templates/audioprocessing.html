@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Processing</title>
+    <link rel="stylesheet" href="../static/dist/css/output.css" />
+  </head>
+  <body class="flex flex-col min-h-screen bg-gray-100">
+    {% include 'navbar.html' %}
+    <div class="flex flex-col items-center justify-center flex-grow">
+      <h2 class="my-2 text-2xl font-bold">Audio Compression</h2>
+      <form
+        action="/compress_audio"
+        method="POST"
+        enctype="multipart/form-data"
+        class="flex flex-col items-center mb-2"
+      >
+        <input
+          type="file"
+          name="audio_file"
+          id="audio_file"
+          accept=".mp3,.wav"
+          class="mx-4 my-2 rounded-md"
+          required
+        />
+        <button
+          type="submit"
+          class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+        >
+          Compress Audio
+        </button>
+      </form>
+      {% if compressed_audio_url %}
+      <a
+        href="{{ compressed_audio_url }}"
+        download="compressed_audio.mp3"
+        class="text-blue-500 underline"
+      >
+        Download Compressed Audio
+      </a>
+      {% endif %}
+    </div>
+    {% include 'footer.html' %}
+  </body>
+</html>

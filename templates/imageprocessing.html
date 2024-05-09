@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Compression</title>
+    <link rel="stylesheet" href="../static/dist/css/output.css" />
+  </head>
+  <body class="flex flex-col min-h-screen bg-gray-100">
+    {% include 'navbar.html' %}
+    <div class="flex flex-col items-center justify-center flex-grow">
+      <h2 class="mb-4 text-2xl font-bold">Image Compression</h2>
+      <form
+        action="/imageprocessing"
+        method="POST"
+        enctype="multipart/form-data"
+        class="flex flex-col items-center mb-2"
+      >
+        <input
+          type="file"
+          name="image_file"
+          accept="image/*"
+          required
+          class="mx-4 my-2 rounded-md"
+        />
+        <button
+          type="submit"
+          class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+        >
+          Process Image
+        </button>
+      </form>
+      {% if processed_image_url %}
+      <h2 class="text-2xl font-bold">Result</h2>
+      <img src="{{ processed_image_url }}" alt="Processed Image" />
+      <button
+        href="{{ processed_image_url }}"
+        download="processed_image.jpg"
+        class="block px-4 py-4 mt-4 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+      >
+        Download Processed Image
+      </button>
+      {% endif %}
+    </div>
+    {% include 'footer.html' %}
+  </body>
+</html>
