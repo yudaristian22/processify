@@ -77,5 +77,3 @@ def process_image():
 
     return render_template("imageprocessing.html", processed_image_url=None)
 
-if __name__ == '__main__':
-	app.run(debug=True)
