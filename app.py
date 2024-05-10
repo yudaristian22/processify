@@ -3,7 +3,7 @@ from PIL import Image
 from io import BytesIO
 from flask import send_file
 import base64 
-import io
+import io,os
 import subprocess
 import soundfile as sf
 from werkzeug.utils import secure_filename
@@ -24,54 +24,26 @@ def audio():
 
 @app.route("/compress_audio", methods=["POST"])
 def compress_audio():
-    try:
-        if request.method == "POST":
-            # Periksa apakah file diunggah
-            if "audio_file" not in request.files:
-                return "Tidak ada file yang diunggah", 400
-            
-            audio_file = request.files["audio_file"]
-            if audio_file.filename == "":
-                return "Tidak ada file yang dipilih", 400
+    if "audio_file" not in request.files:
+        return "Tidak ada file yang diunggah", 400
 
-            # Baca audio dari stream
-            audio_data = audio_file.read()
+    audio_file = request.files["audio_file"]
+    if audio_file.filename == "":
+        return "Tidak ada file yang dipilih", 400
 
-            # Tentukan path untuk menyimpan audio sementara
-            temp_audio_path = "/tmp/temp_audio.wav"
+    # Simpan file audio yang diunggah ke server
+    filename = secure_filename(audio_file.filename)
+    audio_file.save(filename)
 
-            # Simpan audio ke file sementara
-            with open(temp_audio_path, "wb") as temp_audio_file:
-                temp_audio_file.write(audio_data)
+    # Lakukan proses kompresi audio menggunakan subprocess
+    subprocess.run(["ffmpeg", "-i", filename, "-b:a", "64k", "-compression_level", "10", "compressed_audio.mp3"])
 
-            # Baca audio dari file sementara
-            audio, samplerate = sf.read(temp_audio_path)
+    # Hapus file asli yang diunggah
+    os.remove(filename)
 
-            # Kompresi audio
-            compressed_audio = audio[::2]  # Contoh kompresi setengah sampel
-
-            # Tentukan path untuk menyimpan audio yang sudah dikompresi
-            compressed_audio_path = "/tmp/compressed_audio.wav"
-
-            # Simpan audio yang sudah dikompresi
-            sf.write(compressed_audio_path, compressed_audio, samplerate)
-
-            # Baca audio yang sudah dikompresi
-            with open(compressed_audio_path, "rb") as compressed_audio_file:
-                compressed_audio_data = compressed_audio_file.read()
-
-            # Kirim file audio yang sudah dikompresi untuk diunduh
-            return send_file(
-                io.BytesIO(compressed_audio_data),
-                mimetype="audio/wav",
-                as_attachment=True,
-                download_name="compressed_audio.wav"
-            )
-
-        return jsonify({"error": "Metode request tidak valid"}), 405
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+    # Kirim file audio yang telah dikompres ke pengguna
+    return send_file("compressed_audio.mp3", as_attachment=True)
+      
 @app.route("/imageprocessing", methods=["GET", "POST"])
 def process_image():
     if request.method == "POST":
