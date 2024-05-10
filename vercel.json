@@ -7,5 +7,5 @@
       "config": { "runtime": "python3.12.2" }
     }
   ],
-  "routes": [{ "src": "/(.*)", "dest": "/" }]
+  "routes": [{ "src": "/(.*)", "dest": "/" }, { "handle": "filesystem" }]
 }
