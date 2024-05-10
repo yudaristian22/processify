@@ -6,5 +6,5 @@
       "use": "@vercel/python"
     }
   ],
-  "routes": [{ "src": "/(.*)", "dest": "waitress-serve --port $PORT app:app" }]
+  "routes": [{ "src": "/(.*)", "dest": "waitress-serve --port $PORT app:app!" }]
 }
