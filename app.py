@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from PIL import Image
 from io import BytesIO
 from flask import send_file
 from pydub import AudioSegment
 import base64 
-import os
+import io
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -32,21 +32,27 @@ def compress_audio():
         if audio_file.filename == "":
             return "Tidak ada file yang dipilih", 400
 
-        # Simpan file audio yang diunggah
-        audio_path = os.path.join("uploads", secure_filename(audio_file.filename))
-        audio_file.save(audio_path)
+        # Baca file audio dari data yang diunggah
+        audio_data = io.BytesIO()
+        audio_file.save(audio_data)
+        audio_data.seek(0)
 
         # Kompresi audio
-        sound = AudioSegment.from_file(audio_path)
+        sound = AudioSegment.from_file(audio_data)
         compressed_sound = sound.set_frame_rate(22050)  # Set frame rate sesuai kebutuhan
-        compressed_audio_path = os.path.join("uploads", "compressed_" + secure_filename(audio_file.filename))
-        compressed_sound.export(compressed_audio_path, format="mp3")
 
-        # Hapus file asli yang diunggah
-        os.remove(audio_path)
+        # Simpan audio yang sudah dikompresi ke dalam BytesIO
+        compressed_audio_data = io.BytesIO()
+        compressed_sound.export(compressed_audio_data, format="mp3")
+        compressed_audio_data.seek(0)
 
         # Kirim file audio yang sudah dikompresi untuk diunduh
-        return send_file(compressed_audio_path, as_attachment=True)
+        return send_file(
+            compressed_audio_data,
+            mimetype="audio/mpeg",
+            as_attachment=True,
+            download_name="compressed_audio.mp3"
+        )
 
     return "Metode request tidak valid", 405
 

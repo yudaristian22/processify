@@ -34,13 +34,13 @@
       {% if processed_image_url %}
       <h2 class="text-2xl font-bold">Result</h2>
       <img src="{{ processed_image_url }}" alt="Processed Image" />
-      <button
+      <a
         href="{{ processed_image_url }}"
         download="processed_image.jpg"
         class="block px-4 py-4 mt-4 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
       >
         Download Processed Image
-      </button>
+      </a>
       {% endif %}
     </div>
     {% include 'footer.html' %}
