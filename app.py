@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from PIL import Image
 from io import BytesIO
 from flask import send_file
@@ -23,38 +23,37 @@ def audio():
 
 @app.route("/compress_audio", methods=["POST"])
 def compress_audio():
-    if request.method == "POST":
-        # Periksa apakah file diunggah
-        if "audio_file" not in request.files:
-            return "Tidak ada file yang diunggah", 400
-        
-        audio_file = request.files["audio_file"]
-        if audio_file.filename == "":
-            return "Tidak ada file yang dipilih", 400
+    try:
+        if request.method == "POST":
+            # Periksa apakah file diunggah
+            if "audio_file" not in request.files:
+                return "Tidak ada file yang diunggah", 400
+            
+            audio_file = request.files["audio_file"]
+            if audio_file.filename == "":
+                return "Tidak ada file yang dipilih", 400
 
-        # Baca file audio dari data yang diunggah
-        audio_data = io.BytesIO()
-        audio_file.save(audio_data)
-        audio_data.seek(0)
+            # Kompresi audio secara langsung dari stream
+            sound = AudioSegment.from_file(io.BytesIO(audio_file.read()))
+            compressed_sound = sound.set_frame_rate(22050)  # Set frame rate sesuai kebutuhan
 
-        # Kompresi audio
-        sound = AudioSegment.from_file(audio_data)
-        compressed_sound = sound.set_frame_rate(22050)  # Set frame rate sesuai kebutuhan
+            # Simpan audio yang sudah dikompresi ke dalam BytesIO
+            compressed_audio_data = io.BytesIO()
+            compressed_sound.export(compressed_audio_data, format="mp3")
+            compressed_audio_data.seek(0)
 
-        # Simpan audio yang sudah dikompresi ke dalam BytesIO
-        compressed_audio_data = io.BytesIO()
-        compressed_sound.export(compressed_audio_data, format="mp3")
-        compressed_audio_data.seek(0)
+            # Kirim file audio yang sudah dikompresi untuk diunduh
+            return send_file(
+                compressed_audio_data,
+                mimetype="audio/mpeg",
+                as_attachment=True,
+                download_name="compressed_audio.mp3"
+            )
 
-        # Kirim file audio yang sudah dikompresi untuk diunduh
-        return send_file(
-            compressed_audio_data,
-            mimetype="audio/mpeg",
-            as_attachment=True,
-            download_name="compressed_audio.mp3"
-        )
+        return jsonify({"error": "Metode request tidak valid"}), 405
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    return "Metode request tidak valid", 405
 
 @app.route("/imageprocessing", methods=["GET", "POST"])
 def process_image():
@@ -82,4 +81,3 @@ def process_image():
         return render_template("imageprocessing.html", processed_image_url=processed_image_url)
 
     return render_template("imageprocessing.html", processed_image_url=None)
-
