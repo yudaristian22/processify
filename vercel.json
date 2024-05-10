@@ -2,9 +2,9 @@
   "version": 2,
   "builds": [
     {
-      "src": "waitress-serve --port $PORT app:app",
+      "src": "app.py",
       "use": "@vercel/python"
     }
   ],
-  "routes": [{ "src": "/(.*)", "dest": "waitress-serve --port $PORT app:app!" }]
+  "routes": [{ "src": "/(.*)", "dest": "app.py" }]
 }

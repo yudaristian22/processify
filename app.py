@@ -50,10 +50,6 @@ def compress_audio():
 
     return "Metode request tidak valid", 405
 
-@app.route("/imageprocessing")
-def image():
-    return render_template("imageprocessing.html", processed_image_url=None)
-
 @app.route("/imageprocessing", methods=["GET", "POST"])
 def process_image():
     if request.method == "POST":
